@@ -7,10 +7,8 @@ from collections import UserDict
 from typing import Any
 
 import cachebox
-from heroku3 import from_key
 
 from getter.config import Var
-from getter.logger import LOG
 
 from .db import get_col, gvar
 from .utils import get_full_class_name
@@ -65,35 +63,6 @@ class JSONData:
         return users
 
 
-class Heroku:
-    def __init__(self) -> None:
-        self.name: str = Var.HEROKU_APP_NAME
-        self.api: str = Var.HEROKU_API
-
-    def heroku(self) -> Any:
-        conn = None
-        try:
-            if self.is_heroku:
-                conn = from_key(self.api)
-        except BaseException as err:
-            LOG.exception(err)
-        return conn
-
-    @property
-    @cachebox.cached(cachebox.LRUCache(maxsize=512))
-    def stack(self) -> str:
-        try:
-            app = self.heroku().app(self.name)
-            stack = app.info.stack.name
-        except BaseException:
-            stack = "none"
-        return stack
-
-    @property
-    def is_heroku(self) -> bool:
-        return bool(self.api and self.name)
-
-
 async def get_botlogs() -> int:
     if hasattr(get_botlogs, "cache"):
         return get_botlogs.cache
@@ -110,4 +79,3 @@ def formatx_send(err: Exception) -> str:
 
 plugins_help = PluginsHelp()
 jdata = JSONData()
-hk = Heroku()

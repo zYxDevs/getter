@@ -31,7 +31,7 @@ async def all_gmute() -> list[GMute]:
     async with Session() as s:
         try:
             return (await s.execute(select(GMute).order_by(GMute.date.asc()))).scalars().all()
-        except BaseException:
+        except Exception:
             return []
 
 
@@ -54,7 +54,7 @@ async def is_gmute(
                 if use_cache and not _GMUTE_CACHE.get(user_id):
                     _GMUTE_CACHE[user_id] = value
             return value
-        except BaseException:
+        except Exception:
             pass
         return value
 

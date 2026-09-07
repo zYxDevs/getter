@@ -83,7 +83,7 @@ async def StopAFK(kst):
         try:
             for x, y in afk.last.items():
                 await kst.client.delete_messages(int(x), [y])
-        except BaseException:
+        except Exception:
             pass
         await del_afk()
         myself = html.escape(kst.client.full_name)
@@ -115,7 +115,7 @@ async def OnAFK(kst):
             if chat_id in afk.last:
                 try:
                     await kst.client.delete_messages(int(chat_id), [afk.last[chat_id]])
-                except BaseException:
+                except Exception:
                     pass
             last = await kst.reply(
                 text,

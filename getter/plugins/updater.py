@@ -24,7 +24,6 @@ from . import (
     __version__,
     formatx_send,
     gvar,
-    hk,
     humanbool,
     kasta_cmd,
     plugins_help,
@@ -40,9 +39,6 @@ UPSTREAM_BRANCH = "main"
 help_text = f"""
 ❯ `{Var.PREFIX}update [now/pull]`
 Temporarily update as locally.
-
-❯ `{Var.PREFIX}update [deploy/push]`
-Permanently update as heroku.
 
 ❯ `{Var.PREFIX}update force`
 Force temporarily update as locally.
@@ -60,8 +56,6 @@ test_text = """
 ├  <b>PM-Logs</b>: <code>{}</code>
 ├  <b>PM-Block</b>: <code>{}</code>
 ├  <b>Anti-PM</b>: <code>{}</code>
-├  <b>Heroku App</b>: <code>{}</code>
-├  <b>Heroku Stack</b>: <code>{}</code>
 ├  <b>Uptime</b>: <code>{}</code>
 ├  <b>UTC Now</b>: <code>{}</code>
 └  <b>Local Now</b>: <code>{}</code>
@@ -69,10 +63,10 @@ test_text = """
 
 
 @kasta_cmd(
-    pattern="update(?: |$)(force|now|deploy|pull|push)?(?: |$)(.*)",
+    pattern="update(?: |$)(force|now|pull)?(?: |$)(.*)",
 )
 @kasta_cmd(
-    pattern="getterup(?: |$)(force|now|deploy|pull|push)?(?: |$)(.*)",
+    pattern="getterup(?: |$)(force|now|pull)?(?: |$)(.*)",
     edited=True,
     dev=True,
 )
@@ -81,16 +75,13 @@ async def _(kst):
         return await kst.eor("`Please wait until previous •update• finished...`", time=5, silent=True)
     async with _UPDATE_LOCK:
         group = kst.pattern_match.group
-        mode, opt, is_force, is_now, is_deploy, state = group(1), group(2), False, False, False, ""
+        mode, opt, is_force, is_now, state = group(1), group(2), False, False, ""
         if not Var.DEV_MODE and mode == "force":
             is_force = True
             state = "[FORCE] "
         elif mode in {"now", "pull"}:
             is_now = True
             state = "[NOW] "
-        elif mode in {"deploy", "push"}:
-            is_deploy = True
-            state = "[DEPLOY] "
         else:
             state = "[CHECK] "
         if kst.is_dev and opt:
@@ -120,14 +111,9 @@ async def _(kst):
             repo.heads.main.set_tracking_branch(origin.refs.main)
             repo.heads.main.checkout(True)
         await Runner(f"git fetch origin {UPSTREAM_BRANCH}")
-        if is_deploy:
-            if kst.is_dev:
-                await asyncio.sleep(5)
-            await yy.eor(f"`{state}Updating ~ Please Wait...`")
-            return await Pushing(yy, state, repo)
         try:
             verif = verify(repo, f"HEAD..origin/{UPSTREAM_BRANCH}")
-        except BaseException:
+        except Exception:
             verif = None
         if not (verif or is_force):
             return await yy.eor(f"**#Getter** `v{__version__} up-to-date as {UPSTREAM_BRANCH}`")
@@ -184,7 +170,6 @@ async def _(kst):
             await asyncio.sleep(random.choice((4, 6, 8)))
     if kst.is_sudo:
         await asyncio.sleep(random.choice((4, 6, 8)))
-    # http://www.timebie.com/std/utc
     utc_now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
     local_now = datetime.now(Var.TZ).strftime("%Y-%m-%d %H:%M:%S")
     yy = await kst.eor("`Processing...`", silent=True, force_reply=True)
@@ -202,8 +187,6 @@ async def _(kst):
             humanbool(await gvar("_pmlog", use_cache=True), toggle=True),
             humanbool(await gvar("_pmblock", use_cache=True), toggle=True),
             humanbool(await gvar("_antipm", use_cache=True), toggle=True),
-            hk.name or "none",
-            hk.stack,
             ga.uptime,
             utc_now,
             local_now,
@@ -225,12 +208,6 @@ async def update_packages() -> None:
 
 async def force_pull() -> None:
     await Runner(f"git pull --force && git reset --hard origin/{UPSTREAM_BRANCH}")
-
-
-async def force_push() -> str:
-    push = f"git push --force https://heroku:{hk.api}@git.heroku.com/{hk.name}.git HEAD:main"
-    _, err, _, _ = await Runner(push)
-    return err
 
 
 def verify(repo, diff) -> bool:
@@ -281,65 +258,14 @@ Wait for a few seconds, then run `{Var.PREFIX}ping` command."""
     try:
         chat_id = yy.chat_id or yy.from_id
         await sgvar("_restart", f"{chat_id}|{yy.id}")
-    except BaseException:
-        pass
-    try:
-        import psutil
-
-        proc = psutil.Process(os.getpid())
-        for p in proc.open_files() + proc.connections():
-            os.close(p.fd)
-    except BaseException:
+    except Exception:
         pass
     os.execl(sys.executable, sys.executable, "-m", "getter")
-
-
-async def Pushing(kst, state, repo) -> None:
-    if not hk.api:
-        return await kst.eod("Please set `HEROKU_API` in Config Vars.")
-    if not hk.name:
-        return await kst.eod("Please set `HEROKU_APP_NAME` in Config Vars.")
-    try:
-        conn = hk.heroku()
-        app = conn.app(hk.name)
-    except Exception as err:
-        if str(err).lower().startswith("401 client error: unauthorized"):
-            msg = "HEROKU_API invalid or expired... Please re-check."
-        else:
-            msg = err
-        up = f"""**#Getter** **Heroku Error**:
-`{msg}`"""
-        return await kst.eor(up)
-    await force_pull()
-    up = f"""**#Getter** `{state}Updated Successfully...`
-Wait for a few minutes, then run `{Var.PREFIX}ping` command."""
-    yy = await kst.eor(up)
-    try:
-        chat_id = yy.chat_id or yy.from_id
-        await sgvar("_restart", f"{chat_id}|{yy.id}")
-    except BaseException:
-        pass
-    url = app.git_url.replace("https://", f"https://api:{hk.api}@")
-    if "heroku" in repo.remotes:
-        remote = repo.remote("heroku")
-        remote.set_url(url)
-    else:
-        remote = repo.create_remote("heroku", url)
-    try:
-        remote.push(refspec="HEAD:refs/heads/main", force=True)
-    except BaseException:
-        pass
-    build = app.builds(order_by="created_at", sort="desc")[0]
-    if build.status != "succeeded":
-        up = f"""**#Getter** `{state}Update Failed...`
-Try again later or view logs for more info."""
-        await kst.eod(up)
 
 
 plugins_help["updater"] = {
     "{pfx}update": "Checks for updates, also displaying the changelog.",
     "{pfx}update [now/pull]": "Temporarily update as locally.",
-    "{pfx}update [deploy/push]": "Permanently update as heroku.",
     "{pfx}update force": "Force temporarily update as locally.",
     "{pfx}repo": "Get repo link.",
     "{pfx}test": "Check the details.",

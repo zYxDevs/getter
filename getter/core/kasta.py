@@ -19,7 +19,6 @@ from telethon.errors import (
     PhoneNumberInvalidError,
 )
 from telethon.sessions.string import CURRENT_VERSION, StringSession
-from telethon.tl import functions as fun, types as typ
 
 from getter import (
     Root,
@@ -37,7 +36,10 @@ from .property import do_not_remove_credit, get_blacklisted
 from .utils import format_time
 
 if TYPE_CHECKING:
+    from collections.abc import Coroutine
+
     from loguru._logger import Logger
+    from telethon.tl import types as typ
 
 PLUGIN_DIR = Root / "getter/plugins"
 CUSTOM_PLUGIN_DIR = Root / "getter/plugins/custom"
@@ -55,6 +57,7 @@ class KastaClient(BaseClient):
     def __init__(self) -> None:
         self._dialogs = []
         self._plugins = {}
+        self._tasks: set[asyncio.Task] = set()
         super().__init__(
             StringSession(Var.STRING_SESSION),
             api_id=Var.API_ID,
@@ -78,6 +81,26 @@ class KastaClient(BaseClient):
         if self.me:
             return self.me.to_dict()
 
+    def create_task(
+        self,
+        coro: Coroutine,
+        *,
+        catch: bool = False,
+    ) -> asyncio.Task:
+        task = asyncio.create_task(coro)
+        self._tasks.add(task)
+        task.add_done_callback(self._task_done if catch else self._tasks.discard)
+        return task
+
+    def _task_done(self, task: asyncio.Task) -> None:
+        self._tasks.discard(task)
+        try:
+            task.result()
+        except asyncio.CancelledError:
+            pass
+        except Exception:
+            self.log.exception("Background task failed")
+
     async def start_client(self) -> None:
         self.log.info("Trying to login...")
         do_not_remove_credit()
@@ -87,15 +110,6 @@ class KastaClient(BaseClient):
             if await self.is_bot():
                 self.log.critical("Bot account detected. Bots are not supported — use a USER account (userbot).")
                 sys.exit(1)
-
-            cfg = await self(fun.help.GetConfigRequest())
-            for opt in cfg.dc_options:
-                if opt.ip_address == self.session.server_address:
-                    if self.session.dc_id != opt.id:
-                        self.log.warning(f"Fixed DC ID in session from {self.session.dc_id} to {opt.id}")
-                    self.session.set_dc(opt.id, opt.ip_address, opt.port)
-                    self.session.save()
-                    break
 
             await asyncio.sleep(3)
             self.me = await self.get_me()
@@ -142,15 +156,7 @@ class KastaClient(BaseClient):
         try:
             chat_id = message.chat_id or message.from_id
             await sgvar("_reboot", f"{chat_id}|{message.id}")
-        except BaseException:
-            pass
-        try:
-            import psutil
-
-            proc = psutil.Process(os.getpid())
-            for p in proc.open_files() + proc.connections():
-                os.close(p.fd)
-        except BaseException:
+        except Exception:
             pass
         os.execl(sys.executable, sys.executable, "-m", "getter")
 
@@ -178,9 +184,9 @@ class KastaClient(BaseClient):
         if not mod:
             return
         name = mod.__name__
-        self._event_builders = ReverseList([eb for eb in self._event_builders if eb[1].__module__ != name])
+        self._event_builders = ReverseList([i for i in self._event_builders if i[1].__module__ != name])
         sys.modules.pop(name, None)
-        del self._plugins[plugin]
+        self._plugins.pop(plugin)
 
     @property
     def all_plugins(self) -> list[dict[str, str]]:

@@ -46,7 +46,7 @@ class TelegramClient:
     async def read_chat(self, *args, **kwargs) -> bool:
         try:
             return await self.send_read_acknowledge(*args, **kwargs)
-        except BaseException:
+        except Exception:
             return False
 
     @patchable()
@@ -54,7 +54,7 @@ class TelegramClient:
         try:
             entity = await self.get_input_entity(entity)
             return await self(fun.contacts.BlockRequest(entity))
-        except BaseException:
+        except Exception:
             return False
 
     @patchable()
@@ -62,21 +62,21 @@ class TelegramClient:
         try:
             entity = await self.get_input_entity(entity)
             return await self(fun.contacts.UnblockRequest(entity))
-        except BaseException:
+        except Exception:
             return False
 
     @patchable()
     async def archive(self, entity: hints.EntityLike) -> typ.Updates | None:
         try:
             return await self.edit_folder(entity, folder=1)
-        except BaseException:
+        except Exception:
             return
 
     @patchable()
     async def unarchive(self, entity: hints.EntityLike) -> typ.Updates | None:
         try:
             return await self.edit_folder(entity, folder=0)
-        except BaseException:
+        except Exception:
             return
 
     @patchable()
@@ -87,7 +87,7 @@ class TelegramClient:
     ) -> typ.Updates | None:
         try:
             return await self.delete_dialog(entity, revoke=revoke)
-        except BaseException:
+        except Exception:
             return
 
     @patchable()
@@ -95,7 +95,7 @@ class TelegramClient:
         try:
             entity = await self.get_input_entity(entity)
             return await self(fun.messages.ReportSpamRequest(entity))
-        except BaseException:
+        except Exception:
             return False
 
     @patchable()
@@ -119,15 +119,7 @@ class TelegramClient:
                     reaction=[typ.ReactionEmoji(emoticon=reaction)],
                 )
             )
-        except BaseException:
-            return
-
-    @patchable()
-    async def join_to(self, entity: hints.EntityLike) -> typ.Updates | None:
-        try:
-            entity = await self.get_input_entity(entity)
-            return await self(fun.channels.JoinChannelRequest(entity))
-        except BaseException:
+        except Exception:
             return
 
     @patchable()
@@ -145,7 +137,7 @@ class TelegramClient:
                     ),
                 )
             )
-        except BaseException:
+        except Exception:
             return False
 
     @patchable()

@@ -146,7 +146,7 @@ async def PMPermit(kst):
                 warnt = f"\nUser {mention} [`{user.id}`] has been "
             try:
                 await ga.delete_messages(user.id, [NESLAST[towarn]])
-            except BaseException:
+            except Exception:
                 pass
             if "_pmbye" in _PMBYE_CACHE:
                 pmbye = _PMBYE_CACHE.get("_pmbye")
@@ -170,7 +170,7 @@ async def PMPermit(kst):
             )
             try:
                 await kst.respond(text)
-            except BaseException:
+            except Exception:
                 pass
             if is_block:
                 await ga.read(
@@ -186,7 +186,7 @@ async def PMPermit(kst):
                             message="Sends spam messages to my account. I ask Telegram to ban such user.",
                         )
                     )
-                except BaseException:
+                except Exception:
                     pass
                 await ga.block(user.id)
                 if is_pmlog:
@@ -223,7 +223,7 @@ async def PMPermit(kst):
         )
         try:
             await ga.delete_messages(user.id, [NESLAST[towarn]])
-        except BaseException:
+        except Exception:
             pass
         await asyncio.sleep(1)
         last = await kst.reply(text)
@@ -578,7 +578,7 @@ async def _(kst):
             )
         else:
             is_reported = await ga.report_spam(user.id)
-    except BaseException:
+    except Exception:
         pass
     is_block = await ga.block(user.id)
     text = "`User blocked and {} reported!`".format("was" if is_reported else "not") if is_block else "`Cannot Block!`"

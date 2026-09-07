@@ -82,7 +82,7 @@ async def _(kst):
             )
             limit += DEFAULT_PERUSER
             await asyncio.sleep(random.randrange(5, 7))
-        except BaseException:
+        except Exception:
             pass
     if chat_id in ATAGS:
         ATAGS.remove(chat_id)
@@ -127,7 +127,7 @@ async def _(kst):
             )
             limit += DEFAULT_PERUSER
             await asyncio.sleep(random.randrange(5, 7))
-        except BaseException:
+        except Exception:
             pass
     if chat_id in ETAGS:
         ETAGS.remove(chat_id)

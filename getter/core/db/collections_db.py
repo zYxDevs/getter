@@ -30,7 +30,7 @@ async def get_cols() -> list[Collections]:
     async with Session() as s:
         try:
             return (await s.execute(select(Collections).order_by(Collections.keyword.asc()))).scalars().all()
-        except BaseException:
+        except Exception:
             return []
 
 
@@ -44,7 +44,7 @@ async def get_col(keyword: str) -> Collections:
             data = (await s.execute(select(Collections).filter(Collections.keyword == keyword))).scalar_one_or_none()
             if data:
                 return data
-        except BaseException:
+        except Exception:
             pass
         return {}
 

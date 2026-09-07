@@ -134,7 +134,7 @@ async def _(kst):
             limit=0,
             from_user=from_user,
         )
-    except BaseException:
+    except Exception:
         return await kst.try_delete()
     whois = display_name(await ga.get_entity(from_user))
     await yy.eor(f"Total messages from <code>{whois}</code> is <code>{msg.total}</code>", parse_mode="html")
@@ -183,15 +183,15 @@ async def _(kst):
             archived += 1
     try:
         bl_count = (await ga(fun.contacts.GetBlockedRequest(1, 0))).count
-    except BaseException:
+    except Exception:
         bl_count = 0
     try:
         gs_count = len((await ga(fun.messages.GetSavedGifsRequest(0))).gifs)
-    except BaseException:
+    except Exception:
         gs_count = 0
     try:
         sp_count = len((await ga(fun.messages.GetAllStickersRequest(0))).sets)
-    except BaseException:
+    except Exception:
         sp_count = 0
     sc_count = await get_total_bot(kst, "Stickers", "/stats")
     bc_count = await get_total_bot(kst, "BotFather", "/setcommands")
@@ -264,7 +264,7 @@ async def _(kst):
     if match:
         try:
             user_id = await ga.get_id(match)
-        except BaseException:
+        except Exception:
             pass
     chat_id = kst.chat_id or kst.from_id
     if kst.is_reply:
@@ -344,7 +344,7 @@ async def _(kst):
             resp = await conv_created(conv, user_id)
         created = f"\n├  <b>Created</b>: <code>{resp}</code>"
         await ga.delete_dialog(CREATED_BOT, revoke=True)
-    except BaseException:
+    except Exception:
         pass
     dc_id = (user.photo and user.photo.dc_id) or 0
     first_name = html.escape(user.first_name).replace("\u2060", "")
@@ -452,7 +452,7 @@ async def _(kst):
             force_document=False,
             parse_mode="html",
         )
-    except BaseException:
+    except Exception:
         await yy.eor(caption, parse_mode="html")
 
 
@@ -523,7 +523,7 @@ async def _(kst):
             force_document=False,
             parse_mode="html",
         )
-    except BaseException:
+    except Exception:
         await yy.eor(caption, parse_mode="html")
 
 
@@ -553,7 +553,7 @@ async def get_chat_info(kst, chat):
                 hash=0,
             )
         )
-    except BaseException:
+    except Exception:
         msg_info = None
     first_msg_valid = bool(msg_info and msg_info.messages and msg_info.messages[0].id == 1)
     creator_valid = bool(first_msg_valid and msg_info.users)
@@ -588,7 +588,7 @@ async def get_chat_info(kst, chat):
                 )
             )
             admins = admin_rights.count if admin_rights else None
-        except BaseException:
+        except Exception:
             pass
     caption = "<b><u>CHAT INFORMATION</u></b>\n"
     caption += f"├  <b>ID</b>: <code>{chat.id}</code>\n"

@@ -281,7 +281,7 @@ async def _(kst):
         )
         if file:
             await asyncio.to_thread(file.unlink, missing_ok=True)
-    except BaseException:
+    except Exception:
         await yy.eor(text, parse_mode="html")
 
 
@@ -408,7 +408,7 @@ async def _(kst):
         args, limit = args.split(":", 1)
     try:
         limit = int(limit)
-    except BaseException:
+    except Exception:
         pass
     limit = 99 if limit > 99 else limit  # noqa
     current, result, total = normalize_chat_id(kst.chat_id), "", 0

@@ -210,7 +210,7 @@ def kasta_cmd(
                 send_to = BOTLOGS or chat_id
                 reply_to = None if BOTLOGS else kst.id
                 if len(ftext) > MAX_MESSAGE_LEN:
-                    with suppress(BaseException), BytesIO(str.encode(strip_format(ftext))) as file:
+                    with suppress(Exception), BytesIO(str.encode(strip_format(ftext))) as file:
                         file.name = "getter_error.txt"
                         error_log = await getter_app.send_file(
                             send_to,
@@ -241,7 +241,7 @@ def kasta_cmd(
                             link_preview=False,
                             parse_mode="html",
                         )
-                    except BaseException:
+                    except Exception:
                         pass
 
         superuser = dev or sudo

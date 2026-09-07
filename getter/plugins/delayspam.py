@@ -50,7 +50,7 @@ async def _(kst):
             count = int(args[2])
             message = await kst.get_reply_message()
             await kst.try_delete()
-        except BaseException:
+        except Exception:
             return await kst.eor(f"`{Var.PREFIX}{ds_name} [delay] [count] [reply] [to=chat]`", time=6)
     else:
         try:
@@ -59,7 +59,7 @@ async def _(kst):
             count = int(args[2])
             message = str(args[3])
             await kst.try_delete()
-        except BaseException:
+        except Exception:
             return await kst.eor(f"`{Var.PREFIX}{ds_name} [delay] [count] [text] [to=chat]`", time=6)
     delay = max(DS_DELAY_MIN, delay)
     task = asyncio.create_task(
@@ -187,7 +187,7 @@ async def parse_target(
     try:
         entity = await kst.client.get_entity(chat_id)
         return normalize_chat_id(entity.id), text
-    except BaseException:
+    except Exception:
         return None, text
 
 

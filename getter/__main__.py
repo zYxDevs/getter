@@ -31,7 +31,6 @@ from .core.startup import (
     autopilot,
     autous,
     finishing,
-    migrations,
     verify,
 )
 from .core.utils import format_time
@@ -49,9 +48,8 @@ if Var.DEV_MODE:
 async def main() -> None:
     await database_connect()
     await jdata.sudo_users()
-    migrations()
-    await autopilot()
-    await verify()
+    await autopilot(getter_app)
+    await verify(getter_app)
     LOG.info("> Load Plugins...")
     load = monotonic()
     plugins = getter_app.all_plugins
@@ -87,8 +85,8 @@ async def main() -> None:
     LOG.info(launch_msg)
     LOG.info(__license__)
     LOG.info(__copyright__)
-    await autous(getter_app.uid)
-    await finishing(launch_msg)
+    getter_app.create_task(autous(getter_app))
+    await finishing(getter_app, launch_msg)
     LOG.success(success_msg)
 
 

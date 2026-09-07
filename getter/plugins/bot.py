@@ -7,20 +7,21 @@ import os
 import random
 import subprocess
 import sys
+from datetime import datetime
 from time import monotonic, sleep as tsleep
 from typing import TYPE_CHECKING
 
+import psutil
 from telethon.tl import functions as fun
 
 from . import (
-    DOWNLOAD_DIR,
     LOG_DIR,
     Root,
     StartTime,
+    format_bytes,
     format_latency,
     format_time,
-    formatx_send,
-    hk,
+    getter_app,
     kasta_cmd,
     parse_pre,
     plugins_help,
@@ -29,6 +30,27 @@ from . import (
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+usage_text = """
+<b>🖥️ Uptime</b>
+<b>App</b>: <code>{}</code>
+<b>System</b>: <code>{}</code>
+
+<b>📊 Data Usage</b>
+<b>Upload</b>: <code>{}</code>
+<b>Download</b>: <code>{}</code>
+
+<b>💾 Disk Space</b>
+<b>Total</b>: <code>{}</code>
+<b>Used</b>: <code>{}</code>
+<b>Free</b>: <code>{}</code>
+
+<b>📈 Memory Usage</b>
+<b>CPU</b>: <code>{}</code>
+<b>RAM</b>: <code>{}</code>
+<b>DISK</b>: <code>{}</code>
+<b>SWAP</b>: <code>{}</code>
+"""
 
 
 @kasta_cmd(
@@ -72,10 +94,18 @@ async def _(kst):
 
 
 @kasta_cmd(
-    pattern="logs?(?: |$)(heroku|open)?",
+    pattern="usage$",
+)
+async def _(kst):
+    yy = await kst.eor("`Processing...`")
+    await yy.eor(system_usage(), parse_mode="html")
+
+
+@kasta_cmd(
+    pattern="logs?(?: |$)(open)?",
 )
 @kasta_cmd(
-    pattern="glogs?(?: |$)(heroku|open)?(?: |$)(.*)",
+    pattern="glogs?(?: |$)(open)?(?: |$)(.*)",
     dev=True,
 )
 async def _(kst):
@@ -91,8 +121,6 @@ async def _(kst):
             return
         await asyncio.sleep(random.choice((4, 6, 8)))
     yy = await kst.eor("`Getting...`", silent=True)
-    if mode == "heroku":
-        return await heroku_logs(yy)
     if mode == "open":
         for file in get_terminal_logs():
             logs = await asyncio.to_thread(file.read_text)
@@ -109,7 +137,7 @@ async def _(kst):
                     file=file,
                     force_document=True,
                 )
-        except BaseException:
+        except Exception:
             pass
 
 
@@ -135,19 +163,10 @@ async def _(kst):
     try:
         chat_id = yy.chat_id or yy.from_id
         await sgvar("_restart", f"{chat_id}|{yy.id}")
-    except BaseException:
+    except Exception:
         pass
-    if not hk.is_heroku:
-        await yy.eor("**#Getter** `Restarting as locally...`")
-        return restart_app()
-    try:
-        await yy.eor("**#Getter** `Restarting as heroku... Wait for a few minutes.`")
-        app = hk.heroku().app(hk.name)
-        app.restart()
-    except Exception as err:
-        reply = await yy.eor(formatx_send(err), parse_mode="html")
-        await reply.reply("**#Getter** `Restarting as locally...`", silent=True)
-        restart_app()
+    await yy.eor("**#Getter** `Restarting as locally...`")
+    restart_app()
 
 
 @kasta_cmd(
@@ -166,36 +185,7 @@ def get_terminal_logs() -> list[Path]:
     return sorted(LOG_DIR.glob("*.log"))
 
 
-async def heroku_logs(kst) -> None:
-    if not hk.api:
-        return await kst.eod("Please set `HEROKU_API` in Config Vars.")
-    if not hk.name:
-        return await kst.eod("Please set `HEROKU_APP_NAME` in Config Vars.")
-    try:
-        app = hk.heroku().app(hk.name)
-        logs = app.get_log(lines=100)
-    except Exception as err:
-        return await kst.eor(formatx_send(err), parse_mode="html")
-    await kst.eor("`Downloading Logs...`")
-    file = DOWNLOAD_DIR / "getter-heroku.log"
-    await asyncio.to_thread(file.write_text, logs, encoding="utf-8")
-    await kst.eor(
-        "**#Getter** Heroku Logs",
-        file=file,
-        force_document=True,
-    )
-    await asyncio.to_thread(file.unlink, missing_ok=True)
-
-
 def restart_app() -> None:
-    try:
-        import psutil
-
-        proc = psutil.Process(os.getpid())
-        for p in proc.open_files() + proc.connections():
-            os.close(p.fd)
-    except BaseException:
-        pass
     reqs = str(Root / "requirements.txt")
     try:
         subprocess.run(
@@ -226,13 +216,68 @@ def restart_app() -> None:
     os.execl(sys.executable, sys.executable, "-m", "getter")
 
 
+def system_usage() -> str:
+    try:
+        UPLOAD = format_bytes(psutil.net_io_counters().bytes_sent)
+    except Exception:
+        UPLOAD = 0
+    try:
+        DOWN = format_bytes(psutil.net_io_counters().bytes_recv)
+    except Exception:
+        DOWN = 0
+    try:
+        workdir = psutil.disk_usage(".")
+        TOTAL = format_bytes(workdir.total)
+        USED = format_bytes(workdir.used)
+        FREE = format_bytes(workdir.free)
+    except Exception:
+        TOTAL = 0
+        USED = 0
+        FREE = 0
+    try:
+        cpu_freq = psutil.cpu_freq().current
+        cpu_freq = f"{round(cpu_freq / 1000, 2)}GHz" if cpu_freq >= 1000 else f"{round(cpu_freq, 2)}MHz"
+        CPU = f"{psutil.cpu_percent()}% ({psutil.cpu_count()}) {cpu_freq}"
+    except Exception:
+        try:
+            CPU = f"{psutil.cpu_percent()}%"
+        except Exception:
+            CPU = "0%"
+    try:
+        RAM = f"{psutil.virtual_memory().percent}%"
+    except Exception:
+        RAM = "0%"
+    try:
+        DISK = "{}%".format(psutil.disk_usage("/").percent)
+    except Exception:
+        DISK = "0%"
+    try:
+        swap = psutil.swap_memory()
+        SWAP = f"{format_bytes(swap.total)} | {swap.percent or 0}%"
+    except Exception:
+        SWAP = "0 | 0%"
+    return usage_text.format(
+        getter_app.uptime,
+        datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S"),
+        UPLOAD,
+        DOWN,
+        TOTAL,
+        USED,
+        FREE,
+        CPU,
+        RAM,
+        DISK,
+        SWAP,
+    )
+
+
 plugins_help["bot"] = {
     "{pfx}alive": "Just showing alive.",
     "{pfx}uptime|{pfx}up": "Check current uptime.",
     "{pfx}ping|ping|Ping": "Check how long it takes to ping.",
+    "{pfx}usage": "Get system resource usage.",
     "{pfx}logs": "Get the full terminal logs.",
     "{pfx}logs open": "Open logs as text message.",
-    "{pfx}logs heroku": "Get the latest 100 lines of heroku logs.",
     "{pfx}restart": "Restart the bot.",
     "{pfx}sleep [seconds]/[reply]": "Sleep the bot in few seconds (max 30).",
 }

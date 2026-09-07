@@ -98,11 +98,11 @@ class Message:
                         reply_to=reply_to,
                         **args,
                     )
-                except BaseException:
+                except Exception:
                     return
             except MessageTooLongError:
                 await self.delete()
-                with suppress(BaseException), BytesIO(str.encode(text)) as file:
+                with suppress(Exception), BytesIO(str.encode(text)) as file:
                     file.name = "message.txt"
                     return await self.respond(
                         "<b>#Getter</b> Message Too Long",
@@ -118,7 +118,7 @@ class Message:
                 FloodWaitError,
             ):
                 raise
-            except BaseException:
+            except Exception:
                 return
         else:
             try:
@@ -157,10 +157,10 @@ class Message:
                         reply_to=reply_to,
                         **args,
                     )
-                except BaseException:
+                except Exception:
                     return
             except MessageTooLongError:
-                with suppress(BaseException), BytesIO(str.encode(text)) as file:
+                with suppress(Exception), BytesIO(str.encode(text)) as file:
                     file.name = "message.txt"
                     return await self.respond(
                         "<b>#Getter</b> Message Too Long",
@@ -176,7 +176,7 @@ class Message:
                 FloodWaitError,
             ):
                 raise
-            except BaseException:
+            except Exception:
                 return
         if yy and time:
             await asyncio.sleep(time)
@@ -254,12 +254,12 @@ class Message:
                     reply_to=reply_to,
                     **args,
                 )
-            except BaseException:
+            except Exception:
                 return
         except MessageTooLongError:
             if self.out:
                 await self.delete()
-            with suppress(BaseException), BytesIO(str.encode(text)) as file:
+            with suppress(Exception), BytesIO(str.encode(text)) as file:
                 file.name = "message.txt"
                 return await self.respond(
                     "<b>#Getter</b> Message Too Long",
@@ -275,7 +275,7 @@ class Message:
             FloodWaitError,
         ):
             raise
-        except BaseException:
+        except Exception:
             return
         if yy and time:
             await asyncio.sleep(time)
@@ -286,7 +286,7 @@ class Message:
     async def try_delete(self) -> Sequence[typ.messages.AffectedMessages] | None:
         try:
             return await self.delete()
-        except BaseException:
+        except Exception:
             return
 
     @patchable()

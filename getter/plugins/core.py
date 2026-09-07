@@ -287,7 +287,7 @@ async def _(kst):
                     except Exception as err:
                         error = str(err)
                         failed += 1
-        except BaseException:
+        except Exception:
             pass
         if INVITE_WORKER.get(chat_id):
             INVITE_WORKER.pop(chat_id)
@@ -358,9 +358,9 @@ async def _(kst):
                                 ]
                             )
                             members += 1
-                        except BaseException:
+                        except Exception:
                             pass
-            except BaseException:
+            except Exception:
                 pass
             new_data = buffer.getvalue()
             buffer.close()
@@ -389,9 +389,9 @@ async def _(kst):
                                 ]
                             )
                             members += 1
-                        except BaseException:
+                        except Exception:
                             pass
-            except BaseException:
+            except Exception:
                 pass
             data = buffer.getvalue()
             buffer.close()
@@ -420,9 +420,9 @@ async def _(kst):
                             ]
                         )
                         admins += 1
-                    except BaseException:
+                    except Exception:
                         pass
-        except BaseException:
+        except Exception:
             pass
         data = buffer.getvalue()
         buffer.close()
@@ -451,9 +451,9 @@ async def _(kst):
                             ]
                         )
                         bots += 1
-                    except BaseException:
+                    except Exception:
                         pass
-        except BaseException:
+        except Exception:
             pass
         data = buffer.getvalue()
         buffer.close()
@@ -599,11 +599,11 @@ async def _(kst):
                     await yy.eor(f"`Adding {success} {mode}...`")
                 except ChannelPrivateError:
                     break
-                except BaseException:
+                except Exception:
                     pass
             except ChannelPrivateError:
                 break
-            except BaseException:
+            except Exception:
                 pass
         if INVITE_WORKER.get(chat_id):
             INVITE_WORKER.pop(chat_id)
@@ -660,13 +660,13 @@ async def get_chat_info(kst, yy, group=1):
         target = get_username(target)
     try:
         info = await kst.client(fun.messages.GetFullChatRequest(target))
-    except BaseException:
+    except Exception:
         try:
             info = await kst.client(fun.channels.GetFullChannelRequest(target))
         except ValueError:
             await yy.eod("`You must join the target.`")
             return
-        except BaseException:
+        except Exception:
             await yy.eod("`Invalid username/link/id as target, please re-check.`")
             return
     return info

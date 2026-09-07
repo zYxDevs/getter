@@ -50,7 +50,7 @@ async def _(kst):
             )
         else:
             is_reported = await ga.report_spam(user.id)
-    except BaseException:
+    except Exception:
         pass
     try:
         await ga.edit_permissions(chat_id, user.id, view_messages=False)
@@ -93,7 +93,7 @@ async def _(kst):
             )
         else:
             is_reported = await ga.report_spam(user.id)
-    except BaseException:
+    except Exception:
         pass
     try:
         await ga.edit_permissions(chat_id, user.id, view_messages=False)
@@ -135,11 +135,11 @@ async def _(kst):
             )
         else:
             await ga.report_spam(user.id)
-    except BaseException:
+    except Exception:
         pass
     try:
         await ga.edit_permissions(chat_id, user.id, view_messages=False)
-    except BaseException:
+    except Exception:
         pass
 
 
@@ -277,7 +277,7 @@ async def _(kst):
         return
     try:
         await ga.edit_permissions(chat_id, user.id, send_messages=False)
-    except BaseException:
+    except Exception:
         pass
 
 
@@ -416,7 +416,7 @@ async def _(kst):
         return
     try:
         await ga.kick_participant(kst.chat_id, user.id)
-    except BaseException:
+    except Exception:
         pass
 
 
@@ -523,7 +523,7 @@ async def _(kst):
     try:
         await asyncio.sleep(sec)
         await ga.unpin_message(chat_id, msg_id)
-    except BaseException:
+    except Exception:
         pass
 
 
@@ -701,7 +701,7 @@ async def _(kst):
                 try:
                     await ga.kick_participant(chat_id, x.id)
                     kicked += 1
-                except BaseException:
+                except Exception:
                     pass
             else:
                 empty += 1
@@ -710,7 +710,7 @@ async def _(kst):
                 try:
                     await ga.kick_participant(chat_id, x.id)
                     kicked += 1
-                except BaseException:
+                except Exception:
                     pass
             else:
                 month += 1
@@ -719,7 +719,7 @@ async def _(kst):
                 try:
                     await ga.kick_participant(chat_id, x.id)
                     kicked += 1
-                except BaseException:
+                except Exception:
                     pass
             else:
                 week += 1
@@ -728,7 +728,7 @@ async def _(kst):
                 try:
                     await ga.kick_participant(chat_id, x.id)
                     kicked += 1
-                except BaseException:
+                except Exception:
                     pass
             else:
                 offline += 1
@@ -737,7 +737,7 @@ async def _(kst):
                 try:
                     await ga.kick_participant(chat_id, x.id)
                     kicked += 1
-                except BaseException:
+                except Exception:
                     pass
             else:
                 online += 1
@@ -746,7 +746,7 @@ async def _(kst):
                 try:
                     await ga.kick_participant(chat_id, x.id)
                     kicked += 1
-                except BaseException:
+                except Exception:
                     pass
             else:
                 recently += 1
@@ -755,7 +755,7 @@ async def _(kst):
                 try:
                     await ga.kick_participant(chat_id, x.id)
                     kicked += 1
-                except BaseException:
+                except Exception:
                     pass
             else:
                 bot += 1
@@ -764,7 +764,7 @@ async def _(kst):
                 try:
                     await ga.kick_participant(chat_id, x.id)
                     kicked += 1
-                except BaseException:
+                except Exception:
                     pass
             else:
                 deleted += 1
@@ -773,7 +773,7 @@ async def _(kst):
                 try:
                     await ga.kick_participant(chat_id, x.id)
                     kicked += 1
-                except BaseException:
+                except Exception:
                     pass
             else:
                 none += 1
@@ -836,9 +836,9 @@ async def _(kst):
                 await ga.edit_permissions(chat_id, x.id)
                 await asyncio.sleep(0.5)
                 done += 1
-            except BaseException:
+            except Exception:
                 pass
-        except BaseException:
+        except Exception:
             pass
     await yy.eor(f"`Successfully unbanned {done} users in {normalize(chat.title).lower()}.`")
 

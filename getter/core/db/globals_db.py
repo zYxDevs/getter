@@ -31,7 +31,7 @@ async def all_gvar() -> list[Globals]:
     async with Session() as s:
         try:
             return (await s.execute(select(Globals).order_by(Globals.var.asc()))).scalars().all()
-        except BaseException:
+        except Exception:
             return []
 
 
@@ -53,7 +53,7 @@ async def gvar(
                 value = data.value
                 if use_cache and not _GVAR_CACHE.get(var):
                     _GVAR_CACHE[var] = value
-        except BaseException:
+        except Exception:
             pass
         return value
 

@@ -175,7 +175,7 @@ async def _(kst):
                 )
             else:
                 is_reported = await ga.report_spam(user.id)
-        except BaseException:
+        except Exception:
             pass
         if ga._dialogs:
             dialog = ga._dialogs
@@ -194,9 +194,9 @@ async def _(kst):
                         await ga.edit_permissions(gg.id, user.id, view_messages=False)
                         success += 1
                         await asyncio.sleep(random.uniform(0.5, 1.5))
-                    except BaseException:
+                    except Exception:
                         failed += 1
-                except BaseException:
+                except Exception:
                     failed += 1
         await add_gban(user.id, date, reason)
         await ga.block(user.id)
@@ -260,9 +260,9 @@ async def _(kst):
                         await ga.edit_permissions(gg.id, user.id)
                         success += 1
                         await asyncio.sleep(random.uniform(0.5, 1.5))
-                    except BaseException:
+                    except Exception:
                         failed += 1
-                except BaseException:
+                except Exception:
                     failed += 1
         await del_gban(user.id)
         await ga.unblock(user.id)
@@ -326,9 +326,9 @@ async def _(kst):
                         await ga.edit_permissions(gg.id, user.id, send_messages=False)
                         success += 1
                         await asyncio.sleep(random.uniform(0.5, 1.5))
-                    except BaseException:
+                    except Exception:
                         failed += 1
-                except BaseException:
+                except Exception:
                     failed += 1
         await add_gmute(user.id, date, reason)
         taken = format_time(monotonic() - start_time)
@@ -389,9 +389,9 @@ async def _(kst):
                         await ga.edit_permissions(gg.id, user.id, send_messages=True)
                         success += 1
                         await asyncio.sleep(random.uniform(0.5, 1.5))
-                    except BaseException:
+                    except Exception:
                         failed += 1
-                except BaseException:
+                except Exception:
                     failed += 1
         await del_gmute(user.id)
         taken = format_time(monotonic() - start_time)
@@ -632,9 +632,9 @@ async def _(kst):
                         await ga.kick_participant(gg.id, user.id)
                         success += 1
                         await asyncio.sleep(random.uniform(0.5, 1.5))
-                    except BaseException:
+                    except Exception:
                         failed += 1
-                except BaseException:
+                except Exception:
                     failed += 1
         taken = format_time(monotonic() - start_time)
         text = gkick_text.format(
@@ -698,7 +698,7 @@ async def _(kst):
                     )
                     success += 1
                     await asyncio.sleep(random.uniform(0.5, 1.5))
-                except BaseException:
+                except Exception:
                     failed += 1
         taken = format_time(monotonic() - start_time)
         text = gpromote_text.format(
@@ -759,7 +759,7 @@ async def _(kst):
                     )
                     success += 1
                     await asyncio.sleep(random.uniform(0.5, 1.5))
-                except BaseException:
+                except Exception:
                     failed += 1
         taken = format_time(monotonic() - start_time)
         text = gdemote_text.format(
@@ -853,7 +853,7 @@ async def _(kst):
             "groups as admin" if is_admin else "groups",
         )
         if error and not kst.is_dev:
-            with suppress(BaseException), BytesIO(str.encode(error)) as file:
+            with suppress(Exception), BytesIO(str.encode(error)) as file:
                 file.name = "gcast_error.log"
                 await sendlog(
                     "**#Gcast** Error Logs",
@@ -923,9 +923,9 @@ async def _(kst):
                             )
                             success += 1
                             await asyncio.sleep(random.uniform(2.5, 5.5))
-                        except BaseException:
+                        except Exception:
                             failed += 1
-                    except BaseException:
+                    except Exception:
                         failed += 1
         taken = format_time(monotonic() - start_time)
         text = f"**#Gucast** {taken} in {success + failed}-{failed}={success} users."
@@ -986,7 +986,7 @@ async def gblacklisted(kst, mode):
             return await yy.eor("`Chat is already gblacklist.`", time=4)
         try:
             title = display_name(await ga.get_entity(chat_id))
-        except BaseException:
+        except Exception:
             title = "None"
         chatdata = {
             "title": title,

@@ -1,14 +1,17 @@
 services:
-  worker:
-    build: .
-    environment:
-      API_ID: $API_ID
-      API_HASH: $API_HASH
-      STRING_SESSION: $STRING_SESSION
-      DATABASE_URL: $DATABASE_URL
-      BOTLOGS: $BOTLOGS
-      HANDLER: $HANDLER
-      NO_HANDLER: $NO_HANDLER
-      TIMEZONE: $TIMEZONE
-      LANG_CODE: $LANG_CODE
+  getter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: getter:latest
+    container_name: getter-${COMPOSE_PROJECT_NAME}
+    init: true
     restart: unless-stopped
+    
+    volumes:
+      - ./logs:/app/logs
+      - ./db:/app/db
+      - ./getter/plugins/custom:/app/getter/plugins/custom
+    env_file:
+      - .env
+    network_mode: bridge

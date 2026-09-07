@@ -36,14 +36,14 @@ async def _(kst):
         if is_lang:
             try:
                 words = match.split(maxsplit=1)[1]
-            except BaseException:
+            except Exception:
                 pass
     else:
         words = match
         if is_lang:
             try:
                 words = match.split(maxsplit=1)[1]
-            except BaseException:
+            except Exception:
                 pass
     if not words:
         return await kst.eor("`Reply to text message or provide a text!`", time=5)
@@ -74,14 +74,14 @@ async def _(kst):
         if is_lang:
             try:
                 words = match.split(maxsplit=1)[1]
-            except BaseException:
+            except Exception:
                 pass
     else:
         words = match
         if is_lang:
             try:
                 words = match.split(maxsplit=1)[1]
-            except BaseException:
+            except Exception:
                 pass
     if not words:
         return await kst.eor("`Reply to text message or provide a text!`", time=5)
@@ -110,14 +110,14 @@ async def _(kst):
         if is_lang:
             try:
                 words = match.split(maxsplit=1)[1]
-            except BaseException:
+            except Exception:
                 pass
     else:
         words = match
         if is_lang:
             try:
                 words = match.split(maxsplit=1)[1]
-            except BaseException:
+            except Exception:
                 pass
     if not words:
         return await kst.eor("`Reply to text message or provide a text!`", time=5)

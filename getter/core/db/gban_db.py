@@ -31,7 +31,7 @@ async def all_gban() -> list[GBan]:
     async with Session() as s:
         try:
             return (await s.execute(select(GBan).order_by(GBan.date.asc()))).scalars().all()
-        except BaseException:
+        except Exception:
             return []
 
 
@@ -54,7 +54,7 @@ async def is_gban(
                 if use_cache and not _GBAN_CACHE.get(user_id):
                     _GBAN_CACHE[user_id] = value
             return value
-        except BaseException:
+        except Exception:
             pass
         return value
 

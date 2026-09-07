@@ -72,7 +72,7 @@ async def DeletedUserHandler(kst):
     if await is_gdel(user.id, use_cache=True):
         try:
             await kst.delete()
-        except BaseException:
+        except Exception:
             pass
 
 
@@ -100,7 +100,7 @@ async def JoinedHandler(kst):
             )
         try:
             await ga.edit_permissions(chat.id, user.id, view_messages=False)
-        except BaseException:
+        except Exception:
             pass
         logs_text += f"<b>Reported</b>: <code>{humanbool(is_reported)}</code>\n"
         logs_text += "<b>Reason</b>: {}\n".format(f"<pre>{gban.reason}</pre>" if gban.reason else "None given.")
@@ -121,7 +121,7 @@ async def JoinedHandler(kst):
         )
         try:
             await ga.edit_permissions(chat.id, user.id, send_messages=False)
-        except BaseException:
+        except Exception:
             pass
         logs_text += "<b>Reason</b>: {}\n".format(f"<pre>{gban.reason}</pre>" if gban.reason else "None given.")
         await sendlog(logs_text)

@@ -31,26 +31,10 @@
             "description": "Set local timezone: Continent/Country. Get the list from \"gist.github.com/illvart/0d2fcba7b8a7b337bfe0ad58c6f4d4dd\". Default: Asia/Jakarta",
             "required": false,
             "value": "Asia/Jakarta"
-        },
-        "HEROKU_APP_NAME": {
-            "description": "Input this App name at the top ↑",
-            "required": true
-        },
-        "HEROKU_API": {
-            "description": "Get the API Key from \"dashboard.heroku.com/account\"",
-            "required": true
         }
     },
     "success_url": "https://t.me/kastaid",
-    "buildpacks": [
-        {
-            "url": "https://github.com/heroku/heroku-buildpack-python"
-        },
-        {
-            "url": "https://github.com/heroku/heroku-buildpack-activestorage-preview"
-        }
-    ],
-    "stack": "heroku-22",
+    "stack": "container",
     "addons": [
         {
             "plan": "heroku-postgresql",

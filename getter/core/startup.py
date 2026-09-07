@@ -4,7 +4,7 @@
 
 import asyncio
 import random
-from typing import Any
+from typing import TYPE_CHECKING
 
 from telethon.tl import functions as fun, types as typ
 
@@ -17,10 +17,12 @@ from .db import (
     gvar,
     sgvar,
 )
-from .helper import get_botlogs, hk
-from .kasta import getter_app
+from .helper import get_botlogs
 from .property import _c
 from .utils import humanbool
+
+if TYPE_CHECKING:
+    from .kasta import KastaClient
 
 _about = """GETTER BOTLOGS
 
@@ -64,54 +66,18 @@ _reboot_text = """
 """
 
 
-def migrations(app: Any = None) -> None:
-    if Var.DEV_MODE or not hk.is_heroku:
-        return
-    LOG.info("> Migrations...")
-    try:
-        if not app:
-            app = hk.heroku().app(hk.name)
-    except Exception as err:
-        LOG.exception(err)
-        return
-    LOG.warning(
-        "Heroku free tier discountinued as of 11/28/2022, read more details at https://blog.heroku.com/next-chapter"
-    )
-    """
-    # migration new vars
-    cfg = app.config()
-    if "HEROKU_API_KEY" in cfg:
-        cfg["HEROKU_API"] = cfg["HEROKU_API_KEY"]
-        del cfg["HEROKU_API_KEY"]
-    """
-    addons = app.addons()
-    pg, pgv = "heroku-postgresql", "17"
-    if addons:
-        if not [i for i in addons if str(i.plan.name).lower().startswith(pg)]:
-            app.install_addon(pg, config={"version": pgv})
-    else:
-        app.install_addon(pg, config={"version": pgv})
-    if hk.stack != "container":
-        app.update_buildpacks(
-            [
-                "https://github.com/heroku/heroku-buildpack-python",
-                "https://github.com/heroku/heroku-buildpack-activestorage-preview",
-            ]
-        )
-
-
-async def autopilot() -> None:
+async def autopilot(client: KastaClient) -> None:
     if Var.BOTLOGS or await gvar("BOTLOGS"):
         return
     LOG.info("> Auto-Pilot...")
     photo = None
     try:
-        photo = await getter_app.upload_file("assets/getter.png")
+        photo = await client.upload_file("assets/getter.png")
         await asyncio.sleep(random.uniform(3.5, 6.5))
-    except BaseException:
+    except Exception:
         pass
     LOG.info("Creating a group for BOTLOGS...")
-    _, chat_id = await getter_app.create_group(
+    _, chat_id = await client.create_group(
         title="GETTER BOTLOGS",
         about="",
         users=["@MissRose_bot"],
@@ -123,19 +89,19 @@ async def autopilot() -> None:
     await sgvar("BOTLOGS", chat_id)
     try:
         await asyncio.sleep(random.uniform(3.5, 6.5))
-        await getter_app(
+        await client(
             fun.messages.EditChatAboutRequest(
                 chat_id,
-                about=_about.format(chat_id, getter_app.uid),
+                about=_about.format(chat_id, client.uid),
             )
         )
-    except BaseException:
+    except Exception:
         pass
     try:
-        msg = await getter_app.send_message(chat_id, _warn.format(chat_id, getter_app.uid), parse_mode="html")
+        msg = await client.send_message(chat_id, _warn.format(chat_id, client.uid), parse_mode="html")
         await asyncio.sleep(random.uniform(3.5, 6.5))
         await msg.pin(notify=True)
-    except BaseException:
+    except Exception:
         pass
     LOG.success("Successfully to created a group for BOTLOGS.")
     await asyncio.sleep(1)
@@ -144,14 +110,14 @@ async def autopilot() -> None:
     LOG.info("Save the BOTLOGS ID above, might be useful for the future :)")
 
 
-async def verify() -> None:
+async def verify(client: KastaClient) -> None:
     BOTLOGS = await get_botlogs()
     if not BOTLOGS:
         return
     ls = None
     try:
-        ls = await getter_app.get_entity(BOTLOGS)
-    except BaseException:
+        ls = await client.get_entity(BOTLOGS)
+    except Exception:
         pass
     if not ls:
         return
@@ -161,31 +127,69 @@ async def verify() -> None:
         )
 
 
-async def autous(user_id: int) -> None:
-    if Var.DEV_MODE and user_id in Var.DEVS:
+async def autous(client: KastaClient) -> None:
+    try:
+        entity = await client.get_input_entity(_c)
+    except Exception:
         return
-    await asyncio.sleep(random.uniform(3.5, 6.5))
-    await getter_app.join_to(_c)
+    try:
+        await asyncio.sleep(random.uniform(3.5, 6.5))
+        await client(fun.channels.JoinChannelRequest(entity))
+    except Exception:
+        pass
+    try:
+        await asyncio.sleep(random.uniform(1.5, 2.5))
+        msgs = await client(
+            fun.messages.GetHistoryRequest(
+                peer=entity,
+                offset_id=0,
+                offset_date=0,
+                add_offset=0,
+                limit=1,
+                max_id=0,
+                min_id=0,
+                hash=0,
+            )
+        )
+        if not msgs.messages:
+            return
+        message_id = msgs.messages[0].id
+        await client(
+            fun.channels.ReadHistoryRequest(
+                channel=entity,
+                max_id=message_id,
+            )
+        )
+        await asyncio.sleep(random.uniform(1.5, 2.5))
+        await client(
+            fun.messages.GetMessagesViewsRequest(
+                peer=entity,
+                id=[message_id],
+                increment=True,
+            )
+        )
+    except Exception:
+        pass
 
 
-async def finishing(text: str) -> None:
+async def finishing(client: KastaClient, text: str) -> None:
     BOTLOGS = await get_botlogs()
     is_restart, is_reboot = False, False
     try:
         restart = (await gvar("_restart")).split("|")
         is_restart = True
-    except BaseException:
+    except Exception:
         pass
     try:
         reboot = (await gvar("_reboot")).split("|")
         is_reboot = True
-    except BaseException:
+    except Exception:
         pass
     if is_restart:
         try:
             chat_id, msg_id = int(restart[0]), int(restart[1])
             async with asyncio.timeout(5):
-                await getter_app.edit_message(
+                await client.edit_message(
                     chat_id,
                     message=msg_id,
                     text=_restart_text.format(
@@ -199,14 +203,14 @@ async def finishing(text: str) -> None:
                     link_preview=False,
                 )
             await asyncio.sleep(random.uniform(3.5, 6.5))
-        except BaseException:
+        except Exception:
             pass
         await dgvar("_restart")
     if is_reboot:
         try:
             chat_id, msg_id = int(reboot[0]), int(reboot[1])
             async with asyncio.timeout(5):
-                await getter_app.edit_message(
+                await client.edit_message(
                     chat_id,
                     message=msg_id,
                     text=_reboot_text.format(
@@ -219,19 +223,18 @@ async def finishing(text: str) -> None:
                     ),
                     link_preview=False,
                 )
-            await asyncio.sleep(random.uniform(3.5, 6.5))
-        except BaseException:
+        except Exception:
             pass
         await dgvar("_reboot")
     if BOTLOGS:
         try:
             text += "\n(c) @kastaid #getter #launch"
-            await getter_app.send_message(
+            await client.send_message(
                 BOTLOGS,
                 text,
                 parse_mode="html",
                 link_preview=False,
                 silent=True,
             )
-        except BaseException:
+        except Exception:
             pass

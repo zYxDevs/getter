@@ -542,7 +542,7 @@ async def pinger(addr: str) -> str:
         )
         if res.is_alive:
             return f"{res.avg_rtt}ms"
-    except BaseException:
+    except Exception:
         pass
     try:
         proc = await asyncio.create_subprocess_exec(
@@ -559,7 +559,7 @@ async def pinger(addr: str) -> str:
                 if "min/avg/max" in i:
                     rtt = i.replace(" ", "").split("=")[-1].split("/")[1]
                     return f"{rtt}ms"
-    except BaseException:
+    except Exception:
         pass
     return "--ms"
 

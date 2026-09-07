@@ -16,7 +16,7 @@ from . import (
 )
 
 PLUGINS_DIR = Root / "getter/plugins"
-CUSTOM_DIR = PLUGINS_DIR / "custom"
+CUSTOM_PLUGIN_DIR = PLUGINS_DIR / "custom"
 
 
 @kasta_cmd(
@@ -38,7 +38,7 @@ async def _(kst):
     if mt == "text" and get_extension(reply.media) == ".py":
         plugin_file = "".join(_.file_name for _ in reply.media.document.attributes)
         plugin = Path(plugin_file).stem
-        plugin_path = CUSTOM_DIR / plugin_file
+        plugin_path = CUSTOM_PLUGIN_DIR / plugin_file
         if plugin in ga._plugins:
             try:
                 ga.unload_plugin(plugin)
@@ -51,7 +51,7 @@ async def _(kst):
                 await asyncio.to_thread(plugin_path.unlink)
             except Exception as err:
                 ga.log.warning(f"Remove failed {plugin}: {err}")
-        file = await reply.download_media(file=str(CUSTOM_DIR))
+        file = await reply.download_media(file=str(CUSTOM_PLUGIN_DIR))
         if not file:
             return await yy.eor(f"`Failed to download plugin {plugin}.`")
         if ga.load_plugin(plugin_file):
@@ -80,7 +80,7 @@ async def _(kst):
         return await kst.eor("`Input plugin name.`")
     plugin = Path(plugin).stem
     yy = await kst.eor("`Processing...`")
-    custom_path = CUSTOM_DIR / f"{plugin}.py"
+    custom_path = CUSTOM_PLUGIN_DIR / f"{plugin}.py"
     builtin_path = PLUGINS_DIR / f"{plugin}.py"
     if await asyncio.to_thread(custom_path.is_file) and plugin != "__init__":
         try:

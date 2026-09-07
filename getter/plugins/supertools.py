@@ -48,9 +48,9 @@ async def _(kst):
                     await ga.edit_permissions(chat_id, x.id)
                     await asyncio.sleep(0.5)
                     success += 1
-                except BaseException:
+                except Exception:
                     failed += 1
-            except BaseException:
+            except Exception:
                 failed += 1
     if not rocker:
         await yy.eor(f"👏 **Congratulations +{success}-{failed}**\n__From now, you have no friends!__", time=15)
@@ -91,9 +91,9 @@ async def _(kst):
                             await ga.delete_messages(chat_id, cry)
                     await asyncio.sleep(0.5)
                     success += 1
-                except BaseException:
+                except Exception:
                     failed += 1
-            except BaseException:
+            except Exception:
                 failed += 1
     if not lucifer:
         await yy.eor(f"__You're Lucifer +{success}-{failed}__ 👁️", time=15)

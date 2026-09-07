@@ -29,7 +29,7 @@ async def all_allow() -> list[PMPermit]:
     async with Session() as s:
         try:
             return (await s.execute(select(PMPermit).order_by(PMPermit.date.asc()))).scalars().all()
-        except BaseException:
+        except Exception:
             return []
 
 
@@ -48,7 +48,7 @@ async def is_allow(
                 if use_cache and not _PMPERMIT_CACHE.get(user_id):
                     _PMPERMIT_CACHE[user_id] = value
             return value
-        except BaseException:
+        except Exception:
             pass
         return value
 

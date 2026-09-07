@@ -28,9 +28,7 @@ from .functions import (
 )
 from .helper import (
     formatx_send,
-    from_key,
     get_botlogs,
-    hk,
     jdata,
     plugins_help,
 )

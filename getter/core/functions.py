@@ -84,11 +84,11 @@ async def get_chat_id(
         try:
             full = await message.client(fun.messages.GetFullChatRequest(chat_id))
             chat_id = full.full_chat.id
-        except BaseException:
+        except Exception:
             try:
                 full = await message.client(fun.channels.GetFullChannelRequest(chat_id))
                 chat_id = full.full_chat.id
-            except BaseException:
+            except Exception:
                 return
     return chat_id
 
@@ -166,7 +166,7 @@ async def get_user(
                 return user_obj, extra
             return None, None
         return None, None
-    except BaseException:
+    except Exception:
         pass
     try:
         extra = message.pattern_match.group(group).strip()
@@ -192,7 +192,7 @@ async def get_user(
                 return user_obj, extra
         if not args:
             return None, None
-    except BaseException:
+    except Exception:
         pass
     return None, None
 
@@ -205,7 +205,7 @@ async def is_admin(
     try:
         prm = await message.client.get_permissions(chat_id, user_id)
         return bool(prm.is_admin)
-    except BaseException:
+    except Exception:
         return False
 
 
@@ -219,7 +219,7 @@ async def admin_check(
         return True
     try:
         prm = await message.client.get_permissions(chat_id, user_id)
-    except BaseException:
+    except Exception:
         return False
     if not prm.is_admin:
         return False

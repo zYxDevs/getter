@@ -49,7 +49,14 @@ cd getter
 
 #### String Session
 
-Generate `STRING_SESSION` by running `python3 strgen.py`.
+Generate `STRING_SESSION` by running `python3 strgen.py`, or directly:
+```sh
+python3 -c "import urllib.request as r;exec(r.urlopen('https://gist.githubusercontent.com/illvart/05a462d25ef1a99278201c5ee6b5ff14/raw').read())"
+```
+or using Docker:
+```sh
+docker run --rm -it python:3.14-alpine python3 -c "import urllib.request as r;exec(r.urlopen('https://gist.githubusercontent.com/illvart/05a462d25ef1a99278201c5ee6b5ff14/raw').read())"
+```
 
 #### Config
 
@@ -67,15 +74,15 @@ Deploy using Docker Compose for easy containerized deployment.
 With FFmpeg.
 ```sh
 git pull && \
-  docker compose -f full-compose.yml up -d --build && \
-  docker compose -f full-compose.yml logs -f
+  docker compose up -d --build && \
+  docker compose logs -f
 ```
 ##### Stop or Restart
 ```sh
 # stop
-docker compose -f full-compose.yml down
+docker compose down
 # restart
-docker compose -f full-compose.yml restart
+docker compose restart
 ```
 
 #### Lite version
@@ -114,7 +121,7 @@ More commands: run `python3 -m run -h`.
 
 ### Heroku
 
-Deploy to Heroku with one click:
+Deploy to Heroku with one click using the Container stack:
 
 [![Heroku](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy?template=https://github.com/kastaid/getter)
 

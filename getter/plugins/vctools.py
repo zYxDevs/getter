@@ -44,7 +44,7 @@ async def _(kst):
                 title=title,
             )
         )
-    except BaseException:
+    except Exception:
         return await yy.eor("`An error occurred. Try again now!`", time=3)
     CALLS.discard(chat_id)
     if not is_silent:
@@ -72,7 +72,7 @@ async def _(kst):
         return await yy.eor("`No video chat!`", time=3)
     try:
         res = await ga(fun.phone.DiscardGroupCallRequest(call))
-    except BaseException:
+    except Exception:
         return await yy.eor("`An error occurred. Try again now!`", time=3)
     CALLS.discard(chat_id)
     if not is_silent:
@@ -100,7 +100,7 @@ async def _(kst):
     try:
         await ga(fun.phone.EditGroupCallTitleRequest(call, title=title))
         await yy.eor("`Video chat title changed.`", time=3)
-    except BaseException:
+    except Exception:
         await yy.eor("`Cannot change video chat title!`", time=3)
 
 
@@ -125,7 +125,7 @@ async def _(kst):
         text = "`Invited to video chat.`"
     except UserAlreadyParticipantError:
         text = "`User is already invited.`"
-    except BaseException:
+    except Exception:
         text = "`Cannot invite user!`"
     await yy.eor(text, time=3)
 
@@ -161,7 +161,7 @@ async def _(kst):
             await asyncio.sleep(flood + 3)
             await ga(InviteToGroupCallRequest(call=call, users=user))
             done += 6
-        except BaseException:
+        except Exception:
             pass
     await yy.eod(f"`Invited {done} users.`")
 """
@@ -180,7 +180,7 @@ async def _(kst):
         return await yy.eor("`No video chat!`", time=3)
     try:
         res = await ga(fun.phone.GetGroupCallRequest(call, limit=1))
-    except BaseException:
+    except Exception:
         return await yy.eor("`An error occurred. Try again now!`", time=3)
     text = "<b><u>Video Chat Information</u></b>\n"
     text += f"<b>Title</b>: <code>{res.call.title or ''}</code>\n"
@@ -225,7 +225,7 @@ async def _(kst):
             await tgcall.mute(chat_id)
             CALLS.add(chat_id)
             text = "`Joined video chat.`"
-        except BaseException:
+        except Exception:
             if is_termux():
                 text = "`This command is not supported on Termux. Use proot-distro instead!`"
             else:
@@ -262,7 +262,7 @@ async def _(kst):
         if tgcall:
             try:
                 await tgcall.leave_call(chat_id)
-            except BaseException:
+            except Exception:
                 pass
         text = "`Left video chat.`"
     else:
@@ -295,7 +295,7 @@ async def get_call(client, chat_id):
             )
         )
         return call.call
-    except BaseException:
+    except Exception:
         return
 
 

@@ -31,7 +31,7 @@ async def is_afk() -> GoAFK | None:
     async with Session() as s:
         try:
             return (await s.execute(select(GoAFK).filter(GoAFK.state))).scalar_one_or_none()
-        except BaseException:
+        except Exception:
             pass
 
 

@@ -27,7 +27,7 @@ from . import (
 async def _(kst):
     try:
         await kst.delete()
-    except BaseException:
+    except Exception:
         pass
     await kst.read(
         clear_mentions=True,
@@ -43,12 +43,12 @@ async def _(kst):
 async def _(kst):
     try:
         await kst.delete()
-    except BaseException:
+    except Exception:
         pass
     if kst.is_reply:
         try:
             await (await kst.get_reply_message()).delete()
-        except BaseException:
+        except Exception:
             pass
 
 
@@ -67,7 +67,7 @@ async def _(kst):
         total += 1
     try:
         await (await kst.get_reply_message()).delete()
-    except BaseException:
+    except Exception:
         pass
     await kst.sod(f"`Purged {total}`", time=3, silent=True)
 
@@ -148,12 +148,12 @@ async def _(kst):
 async def _(kst):
     try:
         await kst.delete()
-    except BaseException:
+    except Exception:
         pass
     try:
         copy = await kst.get_reply_message()
         await copy.reply(copy)
-    except BaseException:
+    except Exception:
         pass
 
 
@@ -169,7 +169,7 @@ async def _(kst):
             await x.delete()
             count += 1
             await asyncio.sleep(0.3)
-        except BaseException:
+        except Exception:
             pass
     if not count:
         return await yy.eor("`no drafts found`", time=3)
@@ -188,7 +188,7 @@ async def _(kst):
             try:
                 await ga.delete_dialog(x.id, revoke=True)
                 count += 1
-            except BaseException:
+            except Exception:
                 pass
     if not count:
         return await yy.eor("`no ghosts found`", time=3)
@@ -209,7 +209,7 @@ async def _(kst):
             try:
                 await ga.delete_dialog(x.id, revoke=True)
                 count += 1
-            except BaseException:
+            except Exception:
                 pass
     if not count:
         return await yy.eor("`no users found`", time=3)
@@ -314,7 +314,7 @@ async def _(kst):
     try:
         await (await kst.get_reply_message()).send_react(big=True, reaction=reaction)
         return await yy.eor(f"`reacted {reaction}`", time=3)
-    except BaseException:
+    except Exception:
         pass
     await yy.eor("`no react`", time=3)
 
@@ -365,7 +365,7 @@ async def _(kst):
             )
         else:
             is_reported = await ga.report_spam(user.id)
-    except BaseException:
+    except Exception:
         pass
     await yy.eor(
         "User {} {} reported!".format(
@@ -435,7 +435,7 @@ async def _(kst):
         await ga.kick_participant(chat_id, "me")
         if not is_current:
             await kst.eod(f"`Leave from {chat_id}.`")
-    except BaseException:
+    except Exception:
         await kst.eod(f"`Cannot leave from {chat_id}, try leave manually :(`")
 
 
@@ -479,7 +479,7 @@ async def _(kst):
         )
         if not is_current:
             await kst.eod(f"`Deleted channel {chat_id}.`")
-    except BaseException:
+    except Exception:
         await kst.eod(f"`Cannot delete channel {chat_id}, try delete manually :(`")
 
 

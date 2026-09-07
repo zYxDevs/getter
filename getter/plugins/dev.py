@@ -69,7 +69,7 @@ async def _(kst):
     yy = await kst.eor("`Loading...`")
     try:
         paths = await asyncio.to_thread(lambda: sorted(Path().glob(cat)))
-    except BaseException:
+    except Exception:
         paths = None
     if not paths:
         return await yy.eor("`No such directory or empty or incorrect.`", time=5)
@@ -112,7 +112,7 @@ async def _(kst):
                 directory += emoji + f" <code>{path.name}</code>  <code>{format_bytes(path.stat().st_size)}</code>\n"
                 sfile += path.stat().st_size
                 cfile += 1
-        except BaseException:
+        except Exception:
             pass
     hfolder, hfile, htotal = (
         format_bytes(sfolder),
@@ -174,7 +174,7 @@ async def _(kst):
     stdout, stderr, exc = None, None, None
     try:
         value = await aexec(code, kst)
-    except BaseException:
+    except Exception:
         value = None
         exc = format_exc()
     stdout = redirected_output.getvalue()
@@ -300,7 +300,7 @@ def _parse_eval(value=None):
     elif isinstance(value, dict):
         try:
             return json.dumps(value, indent=1, ensure_ascii=False)
-        except BaseException:
+        except Exception:
             pass
     return str(value)
 

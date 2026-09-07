@@ -60,7 +60,7 @@ async def _(kst):
         for _ in range(level):
             img = await asyncio.to_thread(uglying, to_ugly)
         img.save(ugly_img, format="JPEG")
-    except BaseException:
+    except Exception:
         await asyncio.to_thread(to_ugly.unlink, missing_ok=True)
         return await yy.try_delete()
     await yy.eor(

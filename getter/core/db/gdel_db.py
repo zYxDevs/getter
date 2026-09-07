@@ -31,7 +31,7 @@ async def all_gdel() -> list[GDel]:
     async with Session() as s:
         try:
             return (await s.execute(select(GDel).order_by(GDel.date.asc()))).scalars().all()
-        except BaseException:
+        except Exception:
             return []
 
 
@@ -54,7 +54,7 @@ async def is_gdel(
                 if use_cache and not _GDEL_CACHE.get(user_id):
                     _GDEL_CACHE[user_id] = value
             return value
-        except BaseException:
+        except Exception:
             pass
         return value
 

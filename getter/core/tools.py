@@ -71,7 +71,7 @@ async def Runner(cmd: str) -> tuple[str, str, int, int]:
     )
     try:
         stdout, stderr = await proc.communicate()
-    except BaseException:
+    except Exception:
         stdout, stderr = "", ""
     return (
         stdout.decode().strip(),
@@ -129,7 +129,7 @@ async def Fetch(
                     raise_for_status=False,
                     **args,
                 )
-        except BaseException:
+        except Exception:
             return
         if resp.status not in {*{200, 201}, *statuses}:
             return
